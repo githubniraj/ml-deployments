@@ -42,14 +42,14 @@ customer_data = {
 if st.button("Predict", type='primary'):
     endpoint = f"{BACKEND_URL.rstrip('/')}/v1/customer"
     try:
-        response = requests.post(endpoint, json=customer_data)
+        response = requests.post(endpoint, json=customer_data, timeout=15)
         if response.status_code == 200:
             result = response.json()
             churn_prediction = result["Prediction"]
             st.write(f"Based on the information provided, the customer with ID {CustomerID} is likely to {churn_prediction}.")
         else:
-            st.error(f"Error in API request: Status {response.status_code}")
-    except Exception as e:
+            st.error(f"Prediction failed (HTTP {response.status_code}): {response.text}")
+    except requests.exceptions.RequestException as e:
         st.error(f"Connection failed: {e}")
 
 # Batch Prediction
@@ -60,12 +60,12 @@ if file is not None:
     if st.button("Predict for Batch", type='primary'):
         endpoint = f"{BACKEND_URL.rstrip('/')}/v1/customerbatch"
         try:
-            response = requests.post(endpoint, files={"file": file})
+            response = requests.post(endpoint, files={"file": file}, timeout=60)
             if response.status_code == 200:
                 result = response.json()
                 st.header("Batch Prediction Results")
                 st.write(result)
             else:
-                st.error(f"Error in API request: Status {response.status_code}")
-        except Exception as e:
+                st.error(f"Batch prediction failed (HTTP {response.status_code}): {response.text}")
+        except requests.exceptions.RequestException as e:
             st.error(f"Connection failed: {e}")
