@@ -1,12 +1,16 @@
+import os
+
 import requests
 import streamlit as st
 import pandas as pd
 
 st.title("Customer Churn Prediction")
 
-# Configure backend URL - default to localhost for development/Codespaces
-# If using GitHub Codespaces, replace this with your forwarded port 5000 URL
-BACKEND_URL = st.sidebar.text_input("Backend Server URL", value="http://127.0.0.1:5000")
+# Docker Compose sets this to the backend service address; local runs default to localhost.
+BACKEND_URL = st.sidebar.text_input(
+    "Backend Server URL",
+    value=os.getenv("BACKEND_URL", "http://127.0.0.1:5000"),
+)
 
 # Online Prediction
 st.subheader("Online Prediction")
