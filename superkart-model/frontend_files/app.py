@@ -1,9 +1,11 @@
+import os
+
 import streamlit as st
 import pandas as pd
 import requests
 
 # Base URL of the Flask backend
-BACKEND_URL = "http://backend:7860"
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:7860")
 
 st.title("SuperKart System")
 st.write("Enter the product and store details below to predict the total sales.")
@@ -33,13 +35,16 @@ product_data = {
 }
 
 if st.button("Predict", type='primary'):
-    response = requests.post(f"{BACKEND_URL}/v1/predict", json=product_data)
-    if response.status_code == 200:
-        result = response.json()
-        predicted_sales = result["Sales"]
-        st.success(f"Predicted Product Store Sales Total: ₹{predicted_sales:.2f}")
-    else:
-        st.error("Unable to connect to the prediction API.")
+    with st.spinner("Predicting sales..."):
+        try:
+            response = requests.post(
+                f"{BACKEND_URL}/v1/predict", json=product_data, timeout=30
+            )
+            response.raise_for_status()
+            predicted_sales = response.json()["Sales"]
+            st.success(f"Predicted Product Store Sales Total: ₹{predicted_sales:.2f}")
+        except (requests.exceptions.RequestException, ValueError, KeyError) as error:
+            st.error(f"Prediction failed: {error}")
 
 st.subheader("Batch Prediction")
 uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
