@@ -1,24 +1,32 @@
+# Rationale: Docker Compose configuration to orchestrate both the frontend and backend containers together.
 version: '3.8'
 
 services:
   backend:
     build:
+      # Rationale: Tells Docker to build the backend using the Dockerfile located in the backend_files folder.
       context: ./backend_files
       dockerfile: Dockerfile
     ports:
+      # Rationale: Maps port 7860 on the host to port 7860 in the backend container.
       - "7860:7860"
     environment:
       - PORT=7860
 
   frontend:
     build:
+      # Rationale: Tells Docker to build the frontend using the Dockerfile located in the frontend_files folder.
       context: ./frontend_files
       dockerfile: Dockerfile
     ports:
+      # Rationale: Maps port 8501 on the host to port 8501 in the frontend container (Streamlit's default).
       - "8501:8501"
     environment:
+      # Rationale: Points the frontend to the backend URL using host.docker.internal to route requests correctly inside Codespaces.
       - BACKEND_URL=http://host.docker.internal:7860
     extra_hosts:
+      # Rationale: Allows the frontend container to resolve host.docker.internal to the host's gateway.
       - "host.docker.internal:host-gateway"
     depends_on:
+      # Rationale: Ensures the backend container starts before the frontend container.
       - backend
