@@ -4,18 +4,18 @@ import joblib
 import pandas as pd
 from flask import Flask, request, jsonify
 
-# Initialize Flask app with a name
+# Rationale: Initializing the Flask application which acts as our backend web server.
 superkart_api = Flask("SuperKart")
 
-# Load the trained model
+# Rationale: Loading the serialized XGBoost model globally so it's ready in memory when requests come in.
 model = joblib.load("superkart_model.joblib")
 
-# Define a route for the home page
+# Rationale: Root endpoint acting as a health check to verify the API is running.
 @superkart_api.get('/')
 def home():
     return "Welcome to the SuperKart System"
 
-# Define an endpoint to predict sales for a single product
+# Rationale: POST endpoint designed to accept JSON data for a single product, parse it into a DataFrame, predict using the loaded model, and return the numerical prediction as JSON.
 @superkart_api.post('/v1/predict')
 def predict_sales():
     data = request.get_json()
@@ -35,7 +35,7 @@ def predict_sales():
     prediction = model.predict(input_data).tolist()[0]
     return jsonify({'Sales': float(prediction)})
 
-# Define an endpoint to predict sales for a batch of products
+# Rationale: Batch POST endpoint that accepts a multipart CSV file upload, reads it directly into Pandas, predicts across all rows efficiently, and returns a dictionary map of predictions.
 @superkart_api.post('/v1/predictbatch')
 def predict_sales_batch():
     file = request.files['file']
@@ -44,5 +44,6 @@ def predict_sales_batch():
     output_dict = {str(i): round(pred, 2) for i, pred in enumerate(predictions)}
     return output_dict
 
+# Rationale: Runs the Flask app on host 0.0.0.0 making it accessible externally to the container.
 if __name__ == '__main__':
     superkart_api.run(debug=True, host='0.0.0.0')

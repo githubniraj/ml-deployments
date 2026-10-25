@@ -1,3 +1,4 @@
+# Rationale: Pinning specific versions of packages for the backend ensures the Docker container environment is fully deterministic, preventing breaking changes from future library updates.
 pandas==2.2.2
 numpy==2.0.2
 scikit-learn==1.6.1

@@ -1,3 +1,4 @@
+# Rationale: Defines the specific library versions required for the Frontend Streamlit container to run securely without conflict.
 pandas==2.2.2
 requests==2.28.1
 streamlit==1.43.2
