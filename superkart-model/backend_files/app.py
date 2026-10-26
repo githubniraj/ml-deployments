@@ -1,19 +1,21 @@
 # Import necessary libraries
+import os
 import numpy as np
 import joblib
 import pandas as pd
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 
 # Rationale: Initializing the Flask application which acts as our backend web server.
 superkart_api = Flask("SuperKart")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8501")
 
 # Rationale: Loading the serialized XGBoost model globally so it's ready in memory when requests come in.
 model = joblib.load("superkart_model.joblib")
 
-# Rationale: Root endpoint acting as a health check to verify the API is running.
+# Rationale: Root endpoint redirects users to the Streamlit UI, making the prediction interface the landing page.
 @superkart_api.get('/')
 def home():
-    return "Welcome to the SuperKart System"
+    return redirect(FRONTEND_URL, code=302)
 
 # Rationale: POST endpoint designed to accept JSON data for a single product, parse it into a DataFrame, predict using the loaded model, and return the numerical prediction as JSON.
 @superkart_api.post('/v1/predict')
